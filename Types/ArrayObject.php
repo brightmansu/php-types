@@ -4,10 +4,13 @@ namespace Types;
 
 class ArrayObject
     extends Iterable
-    implements \IteratorAggregate, \ArrayAccess, \Countable {
+    implements \ArrayAccess, \Countable, \Iterator {
+
+	protected $position = 0;
 	
 	public function __construct($data = null) {
 		// TODO check if sufficient
+		xdebug_break();
 		if ( !( $data instanceof self ) && ! is_array($data)  && $data !== null)
 			$data = (array)$data;
 
@@ -29,7 +32,26 @@ class ArrayObject
 		return $this;
 	}
 
+	/**
+	 * @param  $key
+	 * @return {string|array|integer|object}
+	 */
+	public function _($key) {
+		if ( $key instanceof PrimitiveTypeWrapper )
+			$key = $key->toPrimitiveType();
+		return $this->data[ $key ];
+	}
+
+	/**
+	 * @param  $key
+	 * @return object
+	 */
+	public function __($key) {ype();
+		return wrap( $this->_( $key) );
+	}
+
 	public function toArrayNative() {
+		xdebug_break();
 		return $this->toPrimitiveType();
 	}
 	
@@ -37,6 +59,13 @@ class ArrayObject
 	public function indexOf($value, $strict = true){
 		$index = array_search($value, $this->data, $strict);
 		return $index !== false ? $index : -1;
+	}
+
+	public function merge($array){
+		return static::from(array_merge(
+			$this->toArrayNative(),
+			method_exists($array, 'toArrayNative') ? $array->toArrayNative() : $array
+		));
 	}
 	
 	public function contains($value, $strict = true){
@@ -93,6 +122,9 @@ class ArrayObject
 	}
 	
 	// Keys / Values
+	/**
+	 * @return Types\ArrayObject
+	 */
 	public function keys(){
 		return static::from(array_keys($this->data));
 	}
@@ -127,6 +159,8 @@ class ArrayObject
 	
 	// IteratorAggregate
 	public function getIterator(){
+		// TODO
+		// TODO support returning object types?
 		return new \ArrayIterator($this->data);
 	}
 	
@@ -150,6 +184,30 @@ class ArrayObject
 	// Countable
 	public function count(){
 		return count($this->data);
+	}
+
+	// Traversable
+	function rewind() {
+		$this->position = 0;
+	}
+
+	function current() {
+		xdebug_break();
+		return $this->_( $this->key() );
+	}
+
+	function key() {
+		// TODO cache keys
+		return $this->keys()->_( $this->position );
+	}
+
+	function next() {
+		$this->position++;
+	}
+
+	function valid() {
+		xdebug_break();
+		return $this->position < $this->count();
 	}
 	
 	// Static

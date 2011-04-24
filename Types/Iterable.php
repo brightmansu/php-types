@@ -18,7 +18,8 @@ abstract class Iterable extends Type {
 	
 	public function map($fn){
 		$results = array();
-		
+
+		xdebug_break();
 		foreach ($this as $key => $value)
 			$results[$key] = $fn($value, $key, $this);
 		
@@ -31,7 +32,7 @@ abstract class Iterable extends Type {
 		foreach ($this as $key => $value)
 			if ($fn($value, $key, $this))
 				$preserveKeys ? $results[$key] = $value : $results[] = $value;
-		
+
 		return static::from($results);
 	}
 	

@@ -3,8 +3,9 @@ namespace Types;
 
 function autoload($class) {
 	$name = explode('\\', $class);
+
 	if ( $name[0] == 'Types' )
-		require srcDir().'/'.$name[ count($name)-1 ] . '.php';
+		require srcDir().'/'.implode('/', array_slice($name, 1)) . '.php';
 }
 
 function srcDir() {

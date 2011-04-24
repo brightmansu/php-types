@@ -20,12 +20,3 @@ class Integer extends PrimitiveTypeWrapper
         return "{$this->value}";
     }
 }
-
-/**
-* Initializes a newly created Integer object.
-* @return Integer created String object
-*/
-function & integer($value = null) {
-    $x = & VariablesManager::getNewPointer(new Integer($value));
-    return $x;
-}

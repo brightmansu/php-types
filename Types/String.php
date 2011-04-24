@@ -201,7 +201,7 @@ class String
     public function callback($name, array $args = array())
     {
         if (!is_callable($name)) {
-            throw new BadFunctionCallException('$name is not a valid callback.');
+            throw new \BadFunctionCallException('$name is not a valid callback.');
         }
         array_unshift($args, $this->data);
         $result = call_user_func_array($name, $args);
@@ -1187,7 +1187,7 @@ class String
     public static function callbackStatic($name, array $args)
     {
         if (empty($args)) {
-            throw new BadFunctionCallException('Static callback requires at least one parameter.');
+            throw new \BadFunctionCallException('Static callback requires at least one parameter.');
         }
         $literal = array_shift($args);
         $string = new self($literal);

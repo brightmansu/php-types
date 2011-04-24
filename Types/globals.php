@@ -8,10 +8,21 @@
  */
 
 function & string($value = null) {
-	$x = & VariablesManager::getNewPointer(new String($value));
+//	$x = & Types\VariablesManager::getNewPointer(new String($value));
+	$x = new Types\String($value);
 	return $x;
 }
 
+
+/**
+* Initializes a newly created Integer object.
+* @return Integer created String object
+*/
+function & integer($value = null) {
+//    $x = & VariablesManager::getNewPointer(new Integer($value));
+	$r = new Types\Integer($value);
+    return $r;
+}
 
 
 /**
@@ -39,7 +50,6 @@ function &aa() {
 	$lastKey = null;
 	foreach($args as $v) {
 		if ( $lastKey === null ){
-			xdebug_break();
 			$array[$v] = null;
 			$lastKey = $v;
 		} else {
@@ -49,4 +59,40 @@ function &aa() {
 	}
 		$r = new Types\ArrayObject($array);
 	return $r;
+}
+
+function &wrap($var) {
+	if ( is_object($var) )
+		return $var;
+
+	xdebug_break();
+	switch(gettype($var)) {
+		case 'integer':
+		case 'float':
+		case 'double':
+			return integer($var);
+			break;
+		case 'string':
+			return string($var);
+			break;
+		case 'array':
+			$r = new Types\ArrayObject($var);
+			return $r;
+			break;
+	}
+
+	return $var;
+}
+
+function &arrayObject($var) {
+	$r = new Types\ArrayObject($var);
+	return $r;
+}
+
+/**
+ * @param  $var
+ * @return Types\ArrayObject
+ */
+function &ao($var) {
+	return arrayObject($var);
 }

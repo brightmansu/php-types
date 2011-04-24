@@ -11,6 +11,9 @@ abstract class Type extends PrimitiveTypeWrapper implements \Serializable {
 	}
 	
 	protected function setData($data){
+		if ( $data instanceof PrimitiveTypeWrapper )
+			$data = $data->data;
+		
 		$this->data = $data;
 		
 		return $this;
