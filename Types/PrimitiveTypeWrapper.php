@@ -6,11 +6,50 @@ namespace Types;
  * @throws Exception
  * TODO inherit from Type
  */
-class PrimitiveTypeWrapper extends AutoBoxedObject
+class PrimitiveTypeWrapper
+	extends AutoBoxedObject
 {
 	protected $data = null;
 
 	protected $allowedCasting = array();
+
+	/**
+	 * Overload method. Proxies to {@link callback()}.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('123456');
+	 * echo $string->md5(); // prints: e10adc3949ba59abbe56e057f20f883e
+	 * ?>
+	 * </code>
+	 * @param mixed $name
+	 * @param array $args
+	 * @return mixed
+	 * @throws BadFunctionCallException
+	 */
+	public function __call($name, $args)
+	{
+			return $this->callback($name, $args);
+	}
+
+	/**
+	 * Returns the result of the callback function $name.
+	 * The literal string will be sent as the first argument.
+	 * @param mixed $name callback function
+	 * @param array $args additional function arguments (default empty)
+	 * @return mixed
+	 * @throws BadFunctionCallException
+	 * @see http://php.net/manual/en/language.pseudo-types.php#language.types.callback
+	 */
+	public function callback($name, array $args = array())
+	{
+			if (!is_callable($name)) {
+					throw new \BadFunctionCallException("$name is not a valid callback.");
+			}
+			array_unshift($args, $this->data);
+			$result = call_user_func_array($name, $args);
+			return wrap($result);
+	}
 
 	public function __toString()
 	{

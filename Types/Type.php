@@ -2,7 +2,9 @@
 
 namespace Types;
 
-abstract class Type extends PrimitiveTypeWrapper implements \Serializable {
+abstract class Type
+	extends PrimitiveTypeWrapper
+	implements \Serializable {
 	
 	protected $data;
 	
