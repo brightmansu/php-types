@@ -33,7 +33,8 @@ abstract class Type
 	// Static
 	public static function from($data = null){
 		$name = static::getClassName();
-		return new $name($data);
+		
+		return $name ? new $name($data) : $name;
 	}
 	
 	protected static function getClassName(){}

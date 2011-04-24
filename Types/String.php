@@ -234,7 +234,7 @@ class String
 	public function compareToIgnoreCase($string, $characters = null)
 	{
 			if ($characters === null) {
-					return strncasecmp($this->data, (string)$string);
+					return strncasecmp($this->data, (string)$string, strlen($string));
 			}
 			return strncasecmp($this->data, (string)$string, (int)$characters);
 	}

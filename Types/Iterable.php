@@ -20,7 +20,6 @@ abstract class Iterable
 	public function map($fn){
 		$results = array();
 
-		xdebug_break();
 		foreach ($this as $key => $value)
 			$results[$key] = $fn($value, $key, $this);
 		

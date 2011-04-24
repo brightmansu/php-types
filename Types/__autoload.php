@@ -19,4 +19,27 @@ function srcDir() {
 
 spl_autoload_register('Types\\autoload');
 
+function &wrap($var) {
+	if ( is_object($var) )
+		return $var;
+
+	xdebug_break();
+	switch(gettype($var)) {
+		case 'integer':
+		case 'float':
+		case 'double':
+			return integer($var);
+			break;
+		case 'string':
+			return string($var);
+			break;
+		case 'array':
+			$r = new Types\ArrayObject($var);
+			return $r;
+			break;
+	}
+
+	return $var;
+}
+
 require 'globals.php';
