@@ -2,19 +2,24 @@
 
 namespace Types;
 //class String extends Iterable implements \IteratorAggregate, \ArrayAccess, \Countable {
-class String
-    extends Iterable
-    implements \IteratorAggregate, \ArrayAccess, \Countable {
+class String extends PrimitiveTypeWrapper implements \IteratorAggregate, \ArrayAccess, \Countable {
 
-	public function __construct($data = null, $encoding = null){
-        // TODO
-		if (is_array($data)) $data = implode($data);
 
-        if ($encoding !== null) {
-            $this->_encoding = strtoupper(str_replace(' ', '-', (string)$encoding));
-        } else if (self::$_defaultEncoding !== null) {
-            $this->_encoding = self::$_defaultEncoding;
-        }
+	/**
+	 * String's length.
+	 * @var int
+	 */
+	protected $_length = null;
+
+	/**
+	 * Current position (Iterator).
+	 * @var int
+	 */
+	private $_index = 0;
+	
+	public function __construct($data = null){
+		if (is_array($data))
+			$data = implode($data);
 
 //		$this->setData('' . (method_exists($data, 'toString') ? $data->toString() : $data));
 		$this->setData($data);
@@ -55,12 +60,6 @@ class String
 		return static::from(preg_replace('/\{([^{}]+)\}/', '', $string));
 	}
 
-	// Cast
-
-	public function toJSON(){
-		return json_encode($this->data);
-	}
-
 	// IteratorAggregate
 	public function getIterator(){
 		return new \ArrayIterator($this->toArray());
@@ -85,64 +84,8 @@ class String
 
 	// Countable
 	public function count(){
-		return strlen($this->data);
+		return $this->getLength();
 	}
-
-	// ADDS
-
-	/**
-	 * String's encoding.
-	 * @var string uppercase
-	 */
-	private $_encoding = null;
-
-	/**
-	 * String's length.
-	 * @var int
-	 */
-	private $_length = null;
-
-	/**
-	 * Current position (Iterator).
-	 * @var int
-	 */
-	private $_index = 0;
-
-	/**
-	 * Default string encoding. Will be used if no encoding is specified.
-	 * Value can changed at run-time with the static method {@link setDefaultEncoding()}.
-	 * Use null for auto-detection of encoding.
-	 * @var string
-	 */
-	private static $_defaultEncoding = null;
-
-	private static $_caseSensitive = true;
-
-	/**
-	 * Whether the mbstring extension is installed and loaded.
-	 * @access private
-	 * @var bool
-	 */
-	private static $_extMbstring = null;
-
-	/**
-	 * Whether the iconv extension is installed and loaded.
-	 * @access private
-	 * @var bool
-	 */
-	private static $_extIconv = null;
-
-	/**
-	 * Whether the utf8 package is installed and loaded.
-	 * @access private
-	 * @var bool
-	 */
-	private static $_extUtf8 = null;
-
-	const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	const ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	const NUMERIC = '0123456789';
-	const SPACE = ' ';
 
 	/**
 	 * Overload method. Provides length and encoding properties.
@@ -164,10 +107,7 @@ class String
 			if ($key === 'length') {
 					return $this->getLength();
 			}
-			if ($key === 'encoding') {
-					return $this->getEncoding();
-			}
-			throw new BadMethodCallException('Undefined property.');
+			throw new \BadMethodCallException('Undefined property.');
 	}
 
 	/**
@@ -182,18 +122,8 @@ class String
 	 * </code>
 	 * @return String
 	 */
-	public function capitalize()
-	{
-			if (function_exists('mb_ucfirst')) {
-					$string = mb_ucfirst($this->data, $this->getEncoding());
-			} else if (function_exists('mb_substr')) {
-					$encoding = $this->getEncoding();
-					$string = mb_strtoupper(mb_substr($this->data, 0, 1, $encoding), $encoding) .
-										mb_substr($this->data, 1, null, $encoding);
-			} else {
-					$string = ucfirst($this->data);
-			}
-			return new self($string);
+	public function capitalize() {
+			return new self(ucfirst($this->data));
 	}
 
 	/**
@@ -202,8 +132,7 @@ class String
 	 * @param int $index character index, counting from zero.
 	 * @return String
 	 */
-	public function charAt($index)
-	{
+	public function charAt($index) {
 			return $this->substring($index, 1);
 	}
 
@@ -292,24 +221,6 @@ class String
 	}
 
 	/**
-	 * Returns String's encoding, or false in failure.
-	 * @return string|bool
-	 */
-	public function getEncoding()
-	{
-			if ($this->_encoding === null) {
-					if (function_exists('mb_detect_encoding')) {
-							$this->_encoding = mb_detect_encoding($this->data);
-					} else if (function_exists('utf8_compliant') && utf8_compliant($this->data)) {
-							$this->_encoding = 'UTF-8';
-					} else {
-							$this->_encoding = false;
-					}
-			}
-			return $this->_encoding;
-	}
-
-	/**
 	 * Returns string's length.
 	 * Counts the number of characters in the string.
 	 * Example:
@@ -323,18 +234,10 @@ class String
 	 */
 	public function getLength()
 	{
-			if ($this->_length === null) {
-					if (function_exists('mb_strlen')) {
-							$this->_length = (int)mb_strlen($this->data, $this->getEncoding());
-					} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strlen')) {
-							$this->_length = (int)utf8_strlen($this->data);
-					} else if (function_exists('iconv_strlen')) {
-							$this->_length = (int)iconv_strlen($this->data, $this->getEncoding());
-					} else {
-							$this->_length = (int)strlen($this->data);
-					}
-			}
-			return $this->_length;
+		if ($this->_length === null) {
+			$this->_length = (int)strlen($this->data);
+		}
+		return $this->_length;
 	}
 
 	/**
@@ -346,16 +249,7 @@ class String
 	 */
 	public function indexOf($substr, $offset = 0)
 	{
-			if (function_exists('mb_strpos')) {
-					$pos = mb_strpos($this->data, (string)$substr, (int)$offset, $this->getEncoding());
-			} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strpos')) {
-					$pos = utf8_strpos($this->data, (string)$substr, ($offset === 0 ? null : $offset));
-			} else if (function_exists('iconv_strpos')) {
-					$pos = iconv_strpos($this->data, (string)$substr, (int)$offset, $this->getEncoding());
-			} else {
-					$pos = strpos($this->data, (string)$substr, (int)$offset);
-			}
-			return $pos;
+			return strpos($this->data, (string)$substr, (int)$offset);
 	}
 
 	public function insert($offset, $string)
@@ -456,16 +350,7 @@ class String
 	 */
 	public function lastIndexOf($substr, $offset = 0)
 	{
-			if (function_exists('mb_strrpos')) {
-					$pos = mb_strrpos($this->data, (string)$substr, (int)$offset, $this->getEncoding());
-			} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrpos')) {
-					$pos = utf8_strrpos($this->data, (string)$substr, ($offset === 0 ? null : $offset));
-			} else if (function_exists('iconv_strrpos')) {
-					$pos = iconv_strrpos($this->data, (string)$substr, (int)$offset, $this->getEncoding());
-			} else {
-					$pos = strrpos($this->data, (string)$substr, (int)$offset);
-			}
-			return $pos;
+			return strrpos($this->data, (string)$substr, (int)$offset);
 	}
 
 	/**
@@ -501,30 +386,19 @@ class String
 			++$this->_index;
 	}
 
-	/**
-	 * Overlays part of a String with another String.
-	 */
-	public function overlay($string, $start, $end)
-	{
-
-	}
-
 	public function pad($length, $padding = self::SPACE)
 	{
-			$func = (($this->getEncoding() === 'UTF-8' && function_exists('utf8_str_pad')) ? 'utf8_str_pad' : 'str_pad');
-			return new self($func($this->data, (int)$length, (string)$padding, STR_PAD_BOTH));
+			return new self(str_pad($this->data, (int)$length, (string)$padding, STR_PAD_BOTH));
 	}
 
 	public function padEnd($length, $padding = self::SPACE)
 	{
-			$func = (($this->getEncoding() === 'UTF-8' && function_exists('utf8_str_pad')) ? 'utf8_str_pad' : 'str_pad');
-			return new self($func($this->data, (int)$length, (string)$padding, STR_PAD_RIGHT));
+			return new self(str_pad($this->data, (int)$length, (string)$padding, STR_PAD_RIGHT));
 	}
 
 	public function padStart($length, $padding = self::SPACE)
 	{
-			$func = (($this->getEncoding() === 'UTF-8' && function_exists('utf8_str_pad')) ? 'utf8_str_pad' : 'str_pad');
-			return new self($func($this->data, (int)$length, (string)$padding, STR_PAD_LEFT));
+			return new self(str_pad($this->data, (int)$length, (string)$padding, STR_PAD_LEFT));
 	}
 
 	/**
@@ -715,16 +589,7 @@ class String
 	 */
 	public function substring($start, $length = null)
 	{
-			if (function_exists('mb_substr')) {
-					$string = mb_substr($this->data, $start, $length, $this->getEncoding());
-			} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_substr')) {
-					$string = utf8_substr($this->data, $start, $length);
-			} else if (function_exists('iconv_substr')) {
-					$string = iconv_substr($this->data, $start, $length, $this->getEncoding());
-			} else {
-					$string = substr($this->data, $start, $length);
-			}
-			return new self($string);
+			return new self(substr($this->data, $start, $length));
 	}
 
 	/**
@@ -896,12 +761,7 @@ class String
 	 */
 	public function toArray()
 	{
-		if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_str_split')) {
-				return utf8_str_split($this->data, 1);
-		}
-		// TODO inherit from PTW class
-		$r = new ArrayObject(str_split($this->data, 1));
-		return $r;
+		return wrap(str_split($this->data, 1));
 	}
 
 	/**
@@ -917,14 +777,7 @@ class String
 	 */
 	public function toLowerCase()
 	{
-			if (function_exists('mb_strtolower')) {
-					$string = mb_strtolower($this->data, $this->getEncoding());
-			} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strtolower')) {
-					$string = utf8_strtolower($this->data);
-			} else {
-					$string = strtolower($this->data);
-			}
-			return new self($string);
+			return new self(strtolower($this->data));
 	}
 
 	/**
@@ -940,14 +793,7 @@ class String
 	 */
 	public function toUpperCase()
 	{
-			if (function_exists('mb_strtoupper')) {
-					$string = mb_strtoupper($this->data, $this->getEncoding());
-			} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strtoupper')) {
-					$string = utf8_strtoupper($this->data);
-			} else {
-					$string = strtoupper($this->data);
-			}
-			return new self($string);
+			return new self(strtoupper($this->data));
 	}
 
 	/**
@@ -958,12 +804,7 @@ class String
 	 */
 	public function trim($charlist = null)
 	{
-			if ($charlist !== null && $this->getEncoding() === 'UTF-8' && function_exists('utf8_trim')) {
-					$string = utf8_trim($this->data, $charlist);
-			} else {
-					$string = trim($this->data, $charlist);
-			}
-			return new self($string);
+			return new self(trim($this->data, $charlist));
 	}
 
 	/**
@@ -974,12 +815,7 @@ class String
 	 */
 	public function trimEnd($charlist = null)
 	{
-			if ($charlist !== null && $this->getEncoding() === 'UTF-8' && function_exists('utf8_rtrim')) {
-					$string = utf8_rtrim($this->data, $charlist);
-			} else {
-					$string = rtrim($this->data, $charlist);
-			}
-			return new self($string);
+			return new self(rtrim($this->data, $charlist));
 	}
 
 	/**
@@ -990,12 +826,7 @@ class String
 	 */
 	public function trimStart($charlist = null)
 	{
-			if ($charlist !== null && $this->getEncoding() === 'UTF-8' && function_exists('utf8_ltrim')) {
-					$string = utf8_ltrim($this->data, $charlist);
-			} else {
-					$string = ltrim($this->data, $charlist);
-			}
-			return new self($string);
+			return new self(ltrim($this->data, $charlist));
 	}
 
 	/**
@@ -1012,19 +843,7 @@ class String
 	 */
 	public function uncapitalize()
 	{
-			if (function_exists('mb_lcfirst')) {
-					$string = mb_lcfirst($this->data, $this->getEncoding());
-			} else if (function_exists('mb_substr')) {
-					$encoding = $this->getEncoding();
-					$string = mb_strtolower(mb_substr($this->data, 0, 1, $encoding), $encoding) .
-										mb_substr($this->data, 1, null, $encoding);
-			} else if (function_exists('lcfirst')) {
-					$string = lcfirst($this->data);
-			} else {
-					$string = strtolower(substr($this->data, 0, 1)) .
-										substr($this->data, 1);
-			}
-			return new self($string);
+			return new self(lcfirst($this->data));
 	}
 
 	/**
@@ -1043,89 +862,6 @@ class String
 	public function valueOf()
 	{
 			return $this->data;
-	}
-
-
-	/**
-	 * Checks if the mbstring extension is installed and loaded.
-	 * @access private
-	 * @return bool true if mbstring is available
-	 */
-	private static function _mbstringLoaded()
-	{
-			if (self::$_extMbstring === null) {
-					self::$_extMbstring = (bool)extension_loaded('mbstring');
-			}
-			return self::$_extMbstring;
-	}
-
-	/**
-	 * Checks if the iconv extension is installed and loaded.
-	 * @access private
-	 * @return bool true if iconv is available
-	 */
-	private static function _iconvLoaded()
-	{
-			if (self::$_extIconv === null) {
-					self::$_extIconv = (bool)extension_loaded('iconv');
-			}
-			return self::$_extIconv;
-	}
-
-	/**
-	 * Checks if the utf8 package is installed and loaded.
-	 * @access private
-	 * @return bool true if utf8 package is available
-	 */
-	private static function _utf8Loaded()
-	{
-			if (self::$_extUtf8 === null) {
-					self::$_extUtf8 = (bool)(defined('UTF8_CORE') && UTF8_CORE === true);
-			}
-			return self::$_extUtf8;
-	}
-
-	/**
-	 * Returns an array with the string extensions that the class uses.
-	 * Possible values: standard, mbstring, iconv, utf8.
-	 * @return array
-	 */
-	public static function getLoadedExtensions()
-	{
-			$ext = array('standard');
-			if (self::_mbstringLoaded()) {
-					$ext[] = 'mbstring';
-			}
-			if (self::_iconvLoaded()) {
-					$ext[] = 'iconv';
-			}
-			if (self::_utf8Loaded()) {
-					$ext[] = 'utf8';
-			}
-			return $ext;
-	}
-
-	/**
-	 * Sets default encoding.
-	 * Use null for auto-detection.
-	 * @param string $encoding encoding (default null)
-	 */
-	public static function setDefaultEncoding($encoding = null)
-	{
-			if ($encoding === null) {
-					self::$_defaultEncoding = null;
-			} else {
-					self::$_defaultEncoding = strtoupper(str_replace(' ', '-', (string)$encoding));
-			}
-	}
-
-	/**
-	 * Returns default encoding.
-	 * @return string
-	 */
-	public static function getDefaultEncoding()
-	{
-			return self::$_defaultEncoding;
 	}
 
 	/**

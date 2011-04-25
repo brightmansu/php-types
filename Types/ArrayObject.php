@@ -2,9 +2,7 @@
 
 namespace Types;
 
-class ArrayObject
-    extends Iterable
-    implements \ArrayAccess, \Countable, \Iterator {
+class ArrayObject extends PrimitiveTypeWrapper implements \ArrayAccess, \Countable, \Iterator {
 
 	protected $position = 0;
 	

@@ -1,19 +1,18 @@
 <?php
 namespace Types;
 
-/**
- * JAVA Autoboxing (part of Lotos Framework)
- *
- * Copyright (c) 2005-2010 Artur Graniszewski (aargoth@boo.pl)
- * All rights reserved.
- *
- * @category   Library
- * @package    Lotos
- * @subpackage DataTypes
- * @copyright  Copyright (c) 2005-2010 Artur Graniszewski (aargoth@boo.pl)
- * @license    GNU LESSER GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- * @version    $Id$
- */
+	/**
+	 * JAVA Autoboxing (part of Lotos Framework)  Copyright (c) 2005-2010 Artur
+	 * Graniszewski (aargoth@boo.pl) All rights reserved.
+	 * @category   Library
+	 * @package    Lotos
+	 * @subpackage DataTypes
+	 * @copyright  Copyright (c) 2005-2010 Artur Graniszewski (aargoth@boo.pl)
+	 * @license    GNU LESSER GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+	 * @author bob
+	 * @version $Id$
+	 * @updated 25-Apr-2011 4:21:37 AM
+	 */
 final class VariablesManager
 {
     /**

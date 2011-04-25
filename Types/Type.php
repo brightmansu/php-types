@@ -2,9 +2,7 @@
 
 namespace Types;
 
-abstract class Type
-	extends PrimitiveTypeWrapper
-	implements \Serializable {
+abstract class Type extends AutoBoxedObject implements \Serializable {
 	
 	protected $data;
 	
@@ -38,5 +36,12 @@ abstract class Type
 	}
 	
 	protected static function getClassName(){}
+
+		/**
+		 * Cast
+		 */
+		public function toJSON()
+		{
+		}
 	
 }

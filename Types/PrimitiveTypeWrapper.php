@@ -6,8 +6,7 @@ namespace Types;
  * @throws Exception
  * TODO inherit from Type
  */
-class PrimitiveTypeWrapper
-	extends AutoBoxedObject
+class PrimitiveTypeWrapper extends Iterable
 {
 	protected $data = null;
 

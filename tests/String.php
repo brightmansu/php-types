@@ -3,7 +3,7 @@
 require_once 'PHPUnit/Autoload.php';
 require_once 'Types/__autoload.php';
 
-class phptypesBasicTest extends PHPUnit_Framework_TestCase {
+class StringTest extends PHPUnit_Framework_TestCase {
 	function testCreation() {
 		$s = 'foo bar baz';
 		$a = string($s);

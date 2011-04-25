@@ -2,7 +2,7 @@
 require_once 'PHPUnit/Autoload.php';
 require_once 'Types/__autoload.php';
 
-class phptypesBasicTest extends PHPUnit_Framework_TestCase {
+class ArrayObjectTest extends PHPUnit_Framework_TestCase {
 	function testArray() {
 		$a = &a(1,2,3);
 		$this->assertArrayHasKey(2, $a->toArrayNative());

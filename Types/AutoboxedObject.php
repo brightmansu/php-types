@@ -2,12 +2,13 @@
 
 namespace Types;
 
-/**
- * AutoBoxedObject
- *
- * Every class needs to inherit this class in order to use PHP autoboxing.
- * @author Artur Graniszewski
- */
+	/**
+	 * AutoBoxedObject  Every class needs to inherit this class in order to use PHP
+	 * autoboxing.
+	 * @author Artur Graniszewski
+	 * @version 1.0
+	 * @updated 25-Apr-2011 4:21:36 AM
+	 */
 abstract class AutoBoxedObject
 {
     /**

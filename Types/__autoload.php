@@ -23,7 +23,6 @@ function &wrap($var) {
 	if ( is_object($var) )
 		return $var;
 
-	xdebug_break();
 	switch(gettype($var)) {
 		case 'integer':
 		case 'float':
